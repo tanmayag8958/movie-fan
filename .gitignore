@@ -1,0 +1,4 @@
+venv
+backend/movie_fan/management/datasets/movies.csv
+.env
+.idea
