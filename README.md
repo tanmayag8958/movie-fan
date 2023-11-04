@@ -16,6 +16,7 @@ Note: Install the latest version of **PostgreSQL** i.e 16
 ```
 
 ### Setup Backend
+Install **Python 3.9**
 ```bash
  cd backend
  pip install -r requirements.txt
