@@ -1,4 +1,4 @@
-from dashboard.models import Movie
+from data.models import Movie
 
 
 def get_filter_query(filters):

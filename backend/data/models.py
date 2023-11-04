@@ -7,7 +7,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
 
 
 class Star(TimeStampedModel):
@@ -16,7 +16,7 @@ class Star(TimeStampedModel):
     name = models.CharField(max_length=200, primary_key=True)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
 
 
 class Director(TimeStampedModel):
@@ -25,7 +25,7 @@ class Director(TimeStampedModel):
     name = models.CharField(max_length=200, primary_key=True)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
 
 
 class Media(TimeStampedModel):
@@ -39,7 +39,7 @@ class Media(TimeStampedModel):
     directors = models.ManyToManyField(to=Director)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
 
 
 class Movie(TimeStampedModel):
@@ -47,7 +47,7 @@ class Movie(TimeStampedModel):
     year = models.CharField(max_length=10, null=True)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
         unique_together = ['media', 'year']
 
 
@@ -57,5 +57,5 @@ class Series(TimeStampedModel):
     end_year = models.CharField(max_length=10, null=True)
 
     class Meta:
-        app_label = 'dashboard'
+        app_label = 'data'
         unique_together = ['media', 'start_year']

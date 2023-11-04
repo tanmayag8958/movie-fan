@@ -23,4 +23,8 @@ urlpatterns = [
         'dashboard/',
         include('dashboard.urls', namespace='dashboard')
     ),
+    path(
+        'data/',
+        include('data.urls', namespace='data')
+    ),
 ]

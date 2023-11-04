@@ -14,47 +14,32 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div
+                    v-for="_filter in filters"
+                    :key="_filter['name']"
+                    class="col-3"
+            >
                 <div class="card card-container">
                     <div class="card-body p-0">
                         <div class="row display-flex justify-content-center align-items-center m-auto">
                             <div class="col-10 p-4 filter-container">
-                                <span class="filter-label">Director: </span>
-                                <span class="filter-label">Name of director </span>
+                                <span class="filter-label">{{ _filter['label'] }}: </span>
+                                <span class="filter-label"> {{ selectedFilters[_filter['name']] }} </span>
                             </div>
                             <div class="col-2 float-right p-0">
-                                <div class="dropdown">
+                                <div class="dropdown" style="cursor:pointer;">
                                     <div class="dropdown-toggle filter-dropdown" id="dropdownMenuButton"
                                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     </div>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <a class="dropdown-item" href="#">Something else here</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="card card-container">
-                    <div class="card-body p-0">
-                        <div class="row display-flex justify-content-center align-items-center m-auto">
-                            <div class="col-10 p-4 filter-container">
-                                <span class="filter-label">Star: </span>
-                                <span class="filter-label">Name of Star </span>
-                            </div>
-                            <div class="col-2 float-right p-0">
-                                <div class="dropdown">
-                                    <div class="dropdown-toggle filter-dropdown" id="dropdownMenuButton"
-                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    </div>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-container" aria-labelledby="dropdownMenuButton">
+                                        <a
+                                            v-for="value in _filter['values']"
+                                            :key="_filter['name'] + '-' + value"
+                                            class="dropdown-item"
+                                            @click="handleFilterSelection(_filter['name'], value)"
+                                        >
+                                            {{ value }}
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -63,18 +48,18 @@
                 </div>
             </div>
         </div>
-        <div class="row pt-5">
+        <div v-if="Object.keys(chartObject).length" class="row pt-5">
             <div class="col-6">
                 <div class="card card-container">
                     <div class="card-body">
-                        <Line :data="data" :options="options"/>
+                        <Line :data="chartObject['data']" :options="chartObject['options']"/>
                     </div>
                 </div>
             </div>
             <div class="col-6">
                 <div class="card card-container">
                     <div class="card-body">
-                        <Line :data="data" :options="options"/>
+                        <Line :data="chartObject['data']" :options="chartObject['options']"/>
                     </div>
                 </div>
             </div>
@@ -94,6 +79,7 @@ import {
     Legend
 } from 'chart.js'
 import {Line} from 'vue-chartjs'
+import axios from "axios";
 
 ChartJS.register(
     CategoryScale,
@@ -112,60 +98,42 @@ export default {
     },
     data() {
         return {
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [
-                    {
-                        label: 'Data One',
-                        backgroundColor: '#F5D257',
-                        borderColor: '#F5D257',
-                        pointRadius: 4,
-                        tension: 0.3,
-                        data: [43440, 0, 10, 40, 39, 80, 40],
-                        yAxisID: 'y',
-                    },
-                    {
-                        label: 'Data Two',
-                        backgroundColor: '#F5D257',
-                        borderColor: '#F5D257',
-                        pointRadius: 0,
-                        tension: 0.3,
-                        data: [40, 39, 1230, 45450, 3923, 80, 40],
-                        yAxisID: 'y',
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    y: {
-                        position: 'left',
-                        ticks: {
-                            color: "#b6baca",
-                        },
-                        grid: {
-                            drawTicks: false,
-                            color: '#999999'
-                        },
-                        border: {
-                            dash: [2, 10]
-                        },
-                    },
-                    x: {
-                        ticks: {
-                            color: "#b6baca",
-                        },
-                        grid: {
-                            display: false,
-                        },
-                        border: {
-                            display: false,
-                        },
-                    },
-                },
-                interaction: {
-                    intersect: false,
-                }
-            },
+            filters: [],
+            selectedFilters: {},
+            tiles: [],
+            chartObject: {}
+        }
+    },
+    mounted: function () {
+        this.fetchFilters();
+        this.fetchTiles();
+    },
+    methods: {
+        handleFilterSelection: function (filterName, valueSelected) {
+            this.selectedFilters[filterName] = valueSelected;
+        },
+        fetchTiles: function () {
+            axios({
+                method: 'get',
+                url: 'http://localhost:8000/dashboard/tiles/',
+            }).then(response => {
+                this.tiles = response.data;
+                console.log(this.tiles);
+                this.chartObject = this.tiles[1]['tile']['result'];
+            });
+        },
+
+        fetchFilters: function () {
+            axios({
+                method: 'get',
+                url: 'http://localhost:8000/data/filters/',
+            }).then(response => {
+                const response_data = response.data;
+                response_data.forEach(_filter => {
+                    this.selectedFilters[_filter['name']] = '';
+                });
+                this.filters = response_data;
+            });
         }
     }
 }
@@ -226,5 +194,13 @@ export default {
     background-clip: text;
     -webkit-background-clip: text;
     text-align: start;
+}
+
+.dropdown-menu-container {
+    overflow-y: auto;
+    position: absolute !important;
+    height: 500px;
+    scroll-behavior: smooth;
+    background-color: #2B2B2B;
 }
 </style>

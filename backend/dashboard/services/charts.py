@@ -1,11 +1,3 @@
-from django.db.models import Count, Avg, Q, F
-from django_pivot.pivot import pivot
-
-from dashboard.exceptions import TileNotImplemented
-from dashboard.models import Movie
-from dashboard.services.utils import get_filter_query
-
-
 class ChartService:
     def __init__(self, result):
         self.result = result

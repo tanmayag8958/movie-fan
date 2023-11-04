@@ -2,7 +2,7 @@ from django.db.models import Count, Q, F, Avg
 from django_pivot.pivot import pivot
 
 from dashboard.exceptions import TileNotImplemented
-from dashboard.models import Movie, Star, Director
+from data.models import Movie
 from dashboard.services.charts import ChartService
 from dashboard.services.utils import get_filter_query
 
@@ -58,7 +58,7 @@ class Tile:
         tiles = []
         if tile_key is None:
             for tile_key, func in self.tiles_available().items():
-                tiles.append({'tile_key': tile_key, 'tile': func(tile_key=tile_key)})
+                tiles.append(func(tile_key=tile_key))
         else:
             try:
                 return self.tiles_available()[tile_key]()
