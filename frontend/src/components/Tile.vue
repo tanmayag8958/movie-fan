@@ -79,7 +79,7 @@ export default {
             filterDictString += '}'
             axios({
                 method: 'get',
-                url: 'http://localhost:8000/dashboard/tiles/' + `?filters=${filterDictString}&tile_key=${this.tile['tile_key']}&media=${this.selectedMedia['name']}`,
+                url: this.getBaseURL() + '/dashboard/tiles/' + `?filters=${filterDictString}&tile_key=${this.tile['tile_key']}&media=${this.selectedMedia['name']}`,
             }).then(response => {
                 if (!Object.keys(response.data).length) this.tileResult = {};
                 else this.tileResult = response.data['tile']['result'];

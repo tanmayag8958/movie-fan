@@ -167,7 +167,7 @@ export default {
         fetchTiles: function () {
             axios({
                 method: 'get',
-                url: 'http://localhost:8000/dashboard/tiles/' + `?media=${this.selectedMedia['name']}`,
+                url: this.getBaseURL() + '/dashboard/tiles/' + `?media=${this.selectedMedia['name']}`,
             }).then(response => {
                 this.tiles = response.data;
                 this.tiles.forEach(tile => {
@@ -183,7 +183,7 @@ export default {
         fetchFilters: function () {
             axios({
                 method: 'get',
-                url: 'http://localhost:8000/data/filters/',
+                url: this.getBaseURL() + '/data/filters/',
             }).then(response => {
                 const response_data = response.data;
                 response_data.forEach(_filter => {
