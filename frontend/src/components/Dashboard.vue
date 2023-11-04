@@ -21,7 +21,8 @@
                     class="col-2"
             >
                 <div class="card card-container">
-                    <div class="card-body p-0">
+                    <div class="card-body p-0" id="dropdownMenuButton" style="cursor: pointer;"
+                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <div class="row display-flex justify-content-center align-items-center m-auto">
                             <div class="col-10 p-4 filter-container">
                                 <span class="filter-label">{{ _filter['label'] }}: </span>
@@ -29,8 +30,7 @@
                             </div>
                             <div class="col-2 float-right p-0">
                                 <div class="dropdown" style="cursor:pointer;">
-                                    <div class="dropdown-toggle filter-dropdown" id="dropdownMenuButton"
-                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <div class="dropdown-toggle filter-dropdown">
                                     </div>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-container"
                                          aria-labelledby="dropdownMenuButton">
