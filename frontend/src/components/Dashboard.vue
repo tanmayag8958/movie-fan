@@ -4,20 +4,21 @@
     </div>
     <div class="container dashboard-container" style="max-width: 95% !important;">
         <div class="row">
-            <div class="col-6">
-                <div class="card card-container">
-                    <div class="card-body">
-                        <div class="movie-count-container p-2">
-                            <span class="movie-label">Total Number of Movies </span>
-                            <span class="movie-label">Name of director </span>
-                        </div>
-                    </div>
-                </div>
+            <div
+                    v-for="countTile in countTiles"
+                    :key="countTile['tile_key']"
+                    :class="'col-' + Math.floor(6/countTiles.length).toString()"
+            >
+                <tile-viewer
+                        :tile="countTile"
+                        :selected-filters="selectedFilters"
+                        :selected-media="selectedMedia"
+                />
             </div>
             <div
                     v-for="_filter in filters"
                     :key="_filter['name']"
-                    class="col-3"
+                    class="col-2"
             >
                 <div class="card card-container">
                     <div class="card-body p-0">
@@ -34,9 +35,10 @@
                                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-container"
                                          aria-labelledby="dropdownMenuButton">
                                         <a
-                                                v-for="value in _filter['values']"
+                                                v-for="(value, valueIndex) in _filter['values']"
                                                 :key="_filter['name'] + '-' + value"
                                                 class="dropdown-item"
+                                                :class="valueIndex === _filter['values'].length - 1 ? '' : 'dropdown-border-bottom'"
                                                 @click="handleFilterSelection(_filter['name'], value)"
                                         >
                                             {{ value }}
@@ -48,6 +50,25 @@
                     </div>
                 </div>
             </div>
+            <div class="col-2 display-flex justify-content-center align-items-center">
+                <div class="row">
+                    <div
+                            v-for="(media, mediaIndex) in mediaObjects"
+                            :key="media['name']"
+                            class="col-6"
+                            :style="mediaIndex === mediaObjects.length - 1 ? {'padding-left': '0'} : {'padding-right': '0'}"
+                    >
+                        <button
+                                class="btn dashboard-button p-3"
+                                :class="media['selected'] ? 'alert-success' : ''"
+                                :style="mediaIndex === mediaObjects.length - 1 ? {'border-left': '0'} : {'border-right': '0'}"
+                                @click="handleMediaChange(media['name'])"
+                        >
+                            {{ media['label'] }}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <template v-if="chartTiles.length">
             <div class="row pt-5">
@@ -56,9 +77,10 @@
                         :key="chartTile['tile_key']"
                         class="col-6"
                 >
-                    <line-chart
+                    <tile-viewer
                             :tile="chartTile"
                             :selected-filters="selectedFilters"
+                            :selected-media="selectedMedia"
                     />
                 </div>
             </div>
@@ -68,12 +90,12 @@
 
 <script>
 import axios from "axios";
-import LineChart from "@/components/LineChart.vue";
+import TileViewer from "@/components/Tile.vue";
 
 export default {
     name: 'DashboardViewer',
     components: {
-        LineChart
+        TileViewer
     },
     data() {
         return {
@@ -81,7 +103,28 @@ export default {
             selectedFilters: {},
             tiles: [],
             chartTiles: [],
-            countTiles: []
+            countTiles: [],
+            mediaObjects: [
+                {
+                    'name': 'movie',
+                    'label': 'Movie',
+                    'selected': false
+                },
+                {
+                    'name': 'series',
+                    'label': 'Series',
+                    'selected': true
+                }
+            ]
+        }
+    },
+    computed: {
+        selectedMedia() {
+            let selectedMedia;
+            this.mediaObjects.forEach(media => {
+                if (media['selected']) selectedMedia = media;
+            });
+            return selectedMedia;
         }
     },
     mounted: function () {
@@ -92,6 +135,11 @@ export default {
         deepCopy: function (value) {
             return JSON.parse(JSON.stringify(value))
         },
+        handleMediaChange: function (mediaName) {
+            this.mediaObjects.forEach(media => {
+                media['selected'] = media['name'] === mediaName;
+            });
+        },
         handleFilterSelection: function (filterName, valueSelected) {
             let currentFilters = this.deepCopy(this.selectedFilters);
             currentFilters[filterName] = valueSelected;
@@ -100,7 +148,7 @@ export default {
         fetchTiles: function () {
             axios({
                 method: 'get',
-                url: 'http://localhost:8000/dashboard/tiles/',
+                url: 'http://localhost:8000/dashboard/tiles/' + `?media=${this.selectedMedia['name']}`,
             }).then(response => {
                 this.tiles = response.data;
                 this.tiles.forEach(tile => {
@@ -139,6 +187,7 @@ export default {
 .card-container {
     background-color: #2B2B2B;
     border: none;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .filter-header {
@@ -173,20 +222,8 @@ export default {
 
 .filter-container {
     border-right: 1px solid #3e3e3e;
-}
-
-.movie-count-container {
-
-}
-
-.movie-label {
-    margin: 0 0 0 2.5%;
-    font-weight: 600;
-    background-image: linear-gradient(to left, #ffffff, #ffffff);
-    color: transparent;
-    background-clip: text;
-    -webkit-background-clip: text;
-    text-align: start;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
 }
 
 .dropdown-menu-container {
@@ -195,5 +232,20 @@ export default {
     height: 500px;
     scroll-behavior: smooth;
     background-color: #2B2B2B;
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+.dashboard-button {
+    border-radius: 0;
+    border: 8px solid #2B2B2B;
+    font-weight: 800;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.dropdown-border-bottom {
+    border-bottom: 1px solid #353535;
 }
 </style>

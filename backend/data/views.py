@@ -9,7 +9,9 @@ class FilterAPIView(APIView):
 
     def get(self, response):
         return Response([{
-            'label': 'Star', 'name': 'star', 'values': Star.objects.values_list('name', flat=True)
+            'label': 'Star', 'name': 'star', 'values': Star.objects.values_list('name', flat=True).order_by('name')
         }, {
-            'label': 'Director', 'name': 'director', 'values': Director.objects.values_list('name', flat=True)
+            'label': 'Director', 'name': 'director', 'values': Director.objects.values_list(
+                'name', flat=True
+            ).order_by('name')
         }])

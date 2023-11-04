@@ -1,7 +1,5 @@
-from data.models import Movie
-
-
-def get_filter_query(filters):
+def get_filter_query(filters, media):
+    from dashboard.services.tiles import Tile
     if not filters:
         return None
     else:
@@ -12,4 +10,4 @@ def get_filter_query(filters):
         for _filter in filters:
             if _filter['value']:
                 filter_fields[filter_field_mapping[_filter['name']]] = _filter['value']
-        return Movie.objects.filter(**filter_fields)
+        return Tile.get_media_mapping()[media]['model'].objects.filter(**filter_fields)

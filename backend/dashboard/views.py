@@ -16,6 +16,7 @@ class TilesAPIView(APIView):
     def get(self, request):
         filters_object = json.loads(request.GET.get('filters', '{}'))
         filters = [{'name': filter_name, 'value': filter_value} for filter_name, filter_value in filters_object.items()]
+        media = request.GET.get('media', 'movie')
         tile_key = request.GET.get('tile_key')
-        response = Tile(filters=filters).get_tiles(tile_key=tile_key)
+        response = Tile(media=media, filters=filters).get_tiles(tile_key=tile_key)
         return Response(response)
