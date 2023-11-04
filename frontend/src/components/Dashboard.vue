@@ -31,12 +31,13 @@
                                     <div class="dropdown-toggle filter-dropdown" id="dropdownMenuButton"
                                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     </div>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-container" aria-labelledby="dropdownMenuButton">
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-container"
+                                         aria-labelledby="dropdownMenuButton">
                                         <a
-                                            v-for="value in _filter['values']"
-                                            :key="_filter['name'] + '-' + value"
-                                            class="dropdown-item"
-                                            @click="handleFilterSelection(_filter['name'], value)"
+                                                v-for="value in _filter['values']"
+                                                :key="_filter['name'] + '-' + value"
+                                                class="dropdown-item"
+                                                @click="handleFilterSelection(_filter['name'], value)"
                                         >
                                             {{ value }}
                                         </a>
@@ -48,60 +49,39 @@
                 </div>
             </div>
         </div>
-        <div v-if="Object.keys(chartObject).length" class="row pt-5">
-            <div class="col-6">
-                <div class="card card-container">
-                    <div class="card-body">
-                        <Line :data="chartObject['data']" :options="chartObject['options']"/>
-                    </div>
+        <template v-if="chartTiles.length">
+            <div class="row pt-5">
+                <div
+                        v-for="chartTile in chartTiles"
+                        :key="chartTile['tile_key']"
+                        class="col-6"
+                >
+                    <line-chart
+                            :tile="chartTile"
+                            :selected-filters="selectedFilters"
+                    />
                 </div>
             </div>
-            <div class="col-6">
-                <div class="card card-container">
-                    <div class="card-body">
-                        <Line :data="chartObject['data']" :options="chartObject['options']"/>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </template>
     </div>
 </template>
 
 <script>
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-} from 'chart.js'
-import {Line} from 'vue-chartjs'
 import axios from "axios";
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-)
+import LineChart from "@/components/LineChart.vue";
 
 export default {
     name: 'DashboardViewer',
     components: {
-        Line
+        LineChart
     },
     data() {
         return {
             filters: [],
             selectedFilters: {},
             tiles: [],
-            chartObject: {}
+            chartTiles: [],
+            countTiles: []
         }
     },
     mounted: function () {
@@ -109,8 +89,13 @@ export default {
         this.fetchTiles();
     },
     methods: {
+        deepCopy: function (value) {
+            return JSON.parse(JSON.stringify(value))
+        },
         handleFilterSelection: function (filterName, valueSelected) {
-            this.selectedFilters[filterName] = valueSelected;
+            let currentFilters = this.deepCopy(this.selectedFilters);
+            currentFilters[filterName] = valueSelected;
+            this.selectedFilters = Object.assign({}, currentFilters);
         },
         fetchTiles: function () {
             axios({
@@ -118,8 +103,13 @@ export default {
                 url: 'http://localhost:8000/dashboard/tiles/',
             }).then(response => {
                 this.tiles = response.data;
-                console.log(this.tiles);
-                this.chartObject = this.tiles[1]['tile']['result'];
+                this.tiles.forEach(tile => {
+                    if (tile['type'] === 'chart') {
+                        this.chartTiles.push(tile);
+                    } else if (tile['type'] === 'count') {
+                        this.countTiles.push(tile);
+                    }
+                });
             });
         },
 
@@ -130,9 +120,12 @@ export default {
             }).then(response => {
                 const response_data = response.data;
                 response_data.forEach(_filter => {
-                    this.selectedFilters[_filter['name']] = '';
+                    this.selectedFilters[_filter['name']] = 'Select';
                 });
                 this.filters = response_data;
+                this.filters.forEach(_filter => {
+                    _filter['values'] = ['Select'].concat(_filter['values'])
+                });
             });
         }
     }

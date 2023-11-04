@@ -14,29 +14,29 @@ class Tile:
 
     def get_movies_count(self, tile_key):
         query = get_filter_query(self.filters)
-        if not query:
+        if query is None:
             query = Movie.objects
         result = query.values('media__name').distinct().count()
 
         return {
-            'tile_key': tile_key, 'tile': {'result': result}
+            'tile_key': tile_key, 'tile': {'result': {'label': 'Number of Movies:', 'value': result}}, 'type': 'count'
         }
 
     def get_movies_count_chart(self, tile_key):
         query = get_filter_query(self.filters)
-        if not query:
+        if query is None:
             query = Movie.objects
         result = list(query.values('year').annotate(
             movies_count=Count('media__name', distinct=True)
         ).order_by('year').exclude(year__in=[None, '']))
         chart = ChartService(result=result).get_chart()
         return {
-            'tile_key': tile_key, 'tile': {'result': chart}
+            'tile_key': tile_key, 'tile': {'result': chart}, 'type': 'chart'
         }
 
     def get_avg_rating_by_genre(self, tile_key):
         query = get_filter_query(self.filters)
-        if not query:
+        if query is None:
             query = Movie.objects
         query_set = query.values(
             'year', 'media__genres__name', 'media__rating'
@@ -44,7 +44,7 @@ class Tile:
         result = pivot(query_set, 'year', 'media__genres__name', F('media__rating'), Avg)
         chart = ChartService(result=result).get_chart()
         return {
-            'tile_key': tile_key, 'tile': {'result': chart}
+            'tile_key': tile_key, 'tile': {'result': chart}, 'type': 'chart'
         }
 
     def tiles_available(self):
@@ -61,7 +61,7 @@ class Tile:
                 tiles.append(func(tile_key=tile_key))
         else:
             try:
-                return self.tiles_available()[tile_key]()
+                return self.tiles_available()[tile_key](tile_key)
             except KeyError:
                 raise TileNotImplemented(f'Tile {tile_key} is not yet supported.')
 

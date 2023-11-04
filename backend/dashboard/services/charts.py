@@ -1,3 +1,6 @@
+import random
+
+
 class ChartService:
     def __init__(self, result):
         self.result = result
@@ -18,6 +21,12 @@ class ChartService:
                     'border': {'display': False},
                 },
             },
+            'legend': {
+                'labels': {
+                    'fontColor': "white",
+                    'fontSize': 18
+                }
+            },
             'interaction': {'intersect': False}
         }
 
@@ -25,8 +34,10 @@ class ChartService:
     def base_dataset_object():
         return {
             'label': '',
-            'backgroundColor': '#F5D257',
-            'borderColor': '#F5D257',
+            'backgroundColor': '',
+            'borderColor': '',
+            'hoverBackgroundColor': "white",
+            'hoverBorderColor': "white",
             'pointRadius': 4,
             'tension': 0.3,
             'data': [],
@@ -44,6 +55,8 @@ class ChartService:
 
     def get_chart_object(self):
         chart_object = self.base_chart_object()
+        if not self.result:
+            return {}
         for index, column_name in enumerate(self.result[0].keys()):
             if index == 0:
                 chart_object['data']['labels'] = [row[column_name] for row in self.result]
@@ -51,6 +64,9 @@ class ChartService:
                 dataset_object = self.base_dataset_object()
                 dataset_object['label'] = column_name
                 dataset_object['data'] = [row[column_name] for row in self.result]
+                dataset_object['borderColor'] = dataset_object['backgroundColor'] = "#" + ''.join(
+                    [random.choice('0123456789ABCDEF') for j in range(6)]
+                )
                 chart_object['data']['datasets'].append(dataset_object)
         return chart_object
 
