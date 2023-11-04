@@ -1,4 +1,5 @@
-from django.db.models import Count
+from django.db.models import Count, Q, F, Avg
+from django_pivot.pivot import pivot
 
 from dashboard.exceptions import TileNotImplemented
 from dashboard.models import Movie, Star, Director
@@ -21,8 +22,27 @@ class Tile:
             'tile_key': tile_key, 'tile': {'result': result}
         }
 
-    def get_chart_by_tile_key(self, tile_key):
-        chart = ChartService(tile_key=tile_key, filters=self.filters).get_chart()
+    def get_movies_count_chart(self, tile_key):
+        query = get_filter_query(self.filters)
+        if not query:
+            query = Movie.objects
+        result = list(query.values('year').annotate(
+            movies_count=Count('media__name', distinct=True)
+        ).order_by('year').exclude(year__in=[None, '']))
+        chart = ChartService(result=result).get_chart()
+        return {
+            'tile_key': tile_key, 'tile': {'result': chart}
+        }
+
+    def get_avg_rating_by_genre(self, tile_key):
+        query = get_filter_query(self.filters)
+        if not query:
+            query = Movie.objects
+        query_set = query.values(
+            'year', 'media__genres__name', 'media__rating'
+        ).exclude(Q(year__in=[None, '']) | Q(media__genres__name=None)).order_by('year')
+        result = pivot(query_set, 'year', 'media__genres__name', F('media__rating'), Avg)
+        chart = ChartService(result=result).get_chart()
         return {
             'tile_key': tile_key, 'tile': {'result': chart}
         }
@@ -30,8 +50,8 @@ class Tile:
     def tiles_available(self):
         return {
             'movies_count': self.get_movies_count,
-            'movies_count_chart': self.get_chart_by_tile_key,
-            'avg_rating_by_genre': self.get_chart_by_tile_key
+            'movies_count_chart': self.get_movies_count_chart,
+            'avg_rating_by_genre': self.get_avg_rating_by_genre
         }
 
     def get_tiles(self, tile_key=None):
