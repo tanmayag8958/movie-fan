@@ -12,5 +12,4 @@ def get_filter_query(filters):
         for _filter in filters:
             if _filter['value']:
                 filter_fields[filter_field_mapping[_filter['name']]] = _filter['value']
-        print(filter_fields)
         return Movie.objects.filter(**filter_fields)
