@@ -15,7 +15,7 @@ import {
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend, Colors
 } from 'chart.js'
 import {Line} from 'vue-chartjs'
 
@@ -26,7 +26,8 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    Colors
 )
 
 export default {

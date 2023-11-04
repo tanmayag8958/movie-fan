@@ -57,6 +57,12 @@ export default {
             tileResult: {}
         }
     },
+    beforeMount: function () {
+        this.emitter.on('media-changes', this.fetchTile);
+    },
+    beforeUnmount: function () {
+        this.emitter.off('media-changes', this.fetchTile);
+    },
     mounted: function () {
         this.setup();
     },
@@ -75,7 +81,7 @@ export default {
                 method: 'get',
                 url: 'http://localhost:8000/dashboard/tiles/' + `?filters=${filterDictString}&tile_key=${this.tile['tile_key']}&media=${this.selectedMedia['name']}`,
             }).then(response => {
-                if (! Object.keys(response.data).length) this.tileResult = {};
+                if (!Object.keys(response.data).length) this.tileResult = {};
                 else this.tileResult = response.data['tile']['result'];
             });
         }

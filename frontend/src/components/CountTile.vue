@@ -23,11 +23,11 @@ export default {
 
 <style>
 .movie-count-container {
-    font-size: 22px;
+    font-size: 21px;
 }
 .movie-label {
     margin: 0 0 0 2.5%;
-    font-weight: 600;
+    font-weight: 800;
     background-image: linear-gradient(to left, #ffffff, #ffffff);
     color: transparent;
     background-clip: text;

@@ -21,11 +21,17 @@ class ChartService:
                     'border': {'display': False},
                 },
             },
-            'legend': {
-                'labels': {
-                    'fontColor': "white",
-                    'fontSize': 18
-                }
+            'plugins': {
+                'colors': {
+                    'forceOverride': True
+                },
+                'legend': {
+                    'position': 'bottom',
+                    'labels': {
+                        'color': "white",
+                        'size': 18
+                    }
+                },
             },
             'interaction': {'intersect': False}
         }
@@ -34,12 +40,10 @@ class ChartService:
     def base_dataset_object():
         return {
             'label': '',
-            'backgroundColor': '',
-            'borderColor': '',
             'hoverBackgroundColor': "white",
             'hoverBorderColor': "white",
-            'pointRadius': 4,
-            'tension': 0.3,
+            'pointRadius': 2,
+            'tension': 0.2,
             'data': [],
             'yAxisID': 'y',
         }
@@ -64,9 +68,9 @@ class ChartService:
                 dataset_object = self.base_dataset_object()
                 dataset_object['label'] = column_name
                 dataset_object['data'] = [row[column_name] for row in self.result]
-                dataset_object['borderColor'] = dataset_object['backgroundColor'] = "#" + ''.join(
-                    [random.choice('0123456789ABCDEF') for j in range(6)]
-                )
+                # dataset_object['borderColor'] = dataset_object['backgroundColor'] = "#" + ''.join(
+                #     [random.choice('0123456789ABCDEF') for j in range(6)]
+                # )
                 chart_object['data']['datasets'].append(dataset_object)
         return chart_object
 

@@ -128,6 +128,7 @@ export default {
         }
     },
     mounted: function () {
+        this.setup();
         this.fetchFilters();
         this.fetchTiles();
     },
@@ -135,9 +136,27 @@ export default {
         deepCopy: function (value) {
             return JSON.parse(JSON.stringify(value))
         },
+        saveToLocalStorage: function (container) {
+            let savedData = JSON.parse(localStorage.savedData || null) || {};
+            savedData = {...savedData, ...container};
+            localStorage.savedData = JSON.stringify(savedData);
+        },
+        getFromLocalStorage: function (key) {
+            let savedData = JSON.parse(localStorage.savedData || null) || {};
+            return savedData[key] || null;
+        },
+        setup: function () {
+            const selectedMediaName = this.getFromLocalStorage('selectedMediaName');
+            if (selectedMediaName) this.handleMediaChange(selectedMediaName);
+        },
         handleMediaChange: function (mediaName) {
+            if (mediaName === this.selectedMedia['name']) return;
             this.mediaObjects.forEach(media => {
                 media['selected'] = media['name'] === mediaName;
+            });
+            this.saveToLocalStorage({'selectedMediaName': mediaName});
+            this.$nextTick(() => {
+                this.emitter.emit('media-changes');
             });
         },
         handleFilterSelection: function (filterName, valueSelected) {
