@@ -31,8 +31,8 @@ Install **Python 3.9** and create a virtual environment.
 
 ```bash
  # load_datasets script will load the movies.csv dataset into databases.
- python manage.py load_datasets
  python manage.py migrate
+ python manage.py load_dataset
  # use only runserver command from next time onwards to run server
  python manage.py runserver
 ```
