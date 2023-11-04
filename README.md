@@ -32,6 +32,8 @@ Install **Python 3.9**
 ```bash
  # load_datasets script will load the movies.csv dataset into databases.
  python manage.py load_datasets
+ python manage.py migrate
+ # use only runserver command from next time onwards to run server
  python manage.py runserver
 ```
 
