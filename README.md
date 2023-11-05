@@ -1,5 +1,7 @@
 # MOVIE FAN
 
+![img.png](img.png)
+
 ## Installation
 
 ### Setup Database
